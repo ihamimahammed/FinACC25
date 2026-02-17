@@ -152,8 +152,8 @@
     function generateCover() {
       // Fill dynamic fields
       document.getElementById("topicOut").innerText = document.getElementById("topic").value;
-      document.getElementById("studentOut").innerText = "Student Name: " + document.getElementById("student").value;
-      document.getElementById("idOut").innerText = "ID: " + document.getElementById("id").value;
+      document.getElementById("studentOut").innerText = document.getElementById("student").value; // implicit, no label
+      document.getElementById("idOut").innerText = document.getElementById("id").value; // implicit, no label
 
       // Show cover and enable download buttons
       document.getElementById("cover").style.display = "block";
