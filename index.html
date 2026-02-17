@@ -15,6 +15,7 @@
       background-color: #266CA9;
       color: white;
       padding: 20px;
+      animation: slideDown 1s ease-out;
     }
     header h1 {
       margin: 0;
@@ -28,12 +29,14 @@
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
+      animation: fadeIn 1.5s ease-in;
     }
     input, button {
       margin: 10px;
       padding: 10px;
       width: 80%;
       font-size: 16px;
+      transition: all 0.3s ease;
     }
     button {
       background-color: #266CA9;
@@ -44,6 +47,7 @@
     }
     button:hover {
       background-color: #1e5585;
+      transform: scale(1.05);
     }
     .cover {
       border: 2px solid black; 
@@ -53,6 +57,9 @@
       text-align: center; 
       background: white;
       box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+      display: none;
+      opacity: 0;
+      transition: opacity 1s ease-in;
     }
     h2 { font-size: 26px; margin: 14px; }
     h3 { font-size: 22px; margin: 12px; }
@@ -66,11 +73,16 @@
       padding: 20px;
       background-color: #f0f0f0;
       font-size: 16px;
+      animation: fadeIn 2s ease-in;
     }
     footer img {
       max-width: 100px;
       border-radius: 50%;
       margin-top: 10px;
+      transition: transform 0.3s ease;
+    }
+    footer img:hover {
+      transform: scale(1.1);
     }
     footer a {
       color: #266CA9;
@@ -79,6 +91,16 @@
     }
     footer a:hover {
       text-decoration: underline;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideDown {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
   </style>
 </head>
@@ -97,7 +119,7 @@
     <button id="downloadImgBtn" onclick="downloadImage()" style="display:none;">Download as Image</button>
 
     <!-- Cover Page -->
-    <div id="cover" class="cover" style="display:none;">
+    <div id="cover" class="cover">
       <!-- Pre-uploaded logo -->
       <img src="logo.png" alt="University Logo" class="logo">
 
@@ -152,11 +174,15 @@
     function generateCover() {
       // Fill dynamic fields
       document.getElementById("topicOut").innerText = document.getElementById("topic").value;
-      document.getElementById("studentOut").innerText = document.getElementById("student").value; // implicit, no label
-      document.getElementById("idOut").innerText = document.getElementById("id").value; // implicit, no label
+      document.getElementById("studentOut").innerText = document.getElementById("student").value; // implicit
+      document.getElementById("idOut").innerText = document.getElementById("id").value; // implicit
 
-      // Show cover and enable download buttons
-      document.getElementById("cover").style.display = "block";
+      // Show cover with fade-in
+      const cover = document.getElementById("cover");
+      cover.style.display = "block";
+      setTimeout(() => { cover.style.opacity = 1; }, 50);
+
+      // Show buttons with animation
       document.getElementById("downloadBtn").style.display = "inline-block";
       document.getElementById("downloadImgBtn").style.display = "inline-block";
     }
