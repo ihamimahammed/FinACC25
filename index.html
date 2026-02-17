@@ -1,25 +1,29 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Khulna University Assignment Cover Generator</title>
+  <title>Khulna University Financial Accounting Assignment Cover Generator</title>
   <style>
     body { 
       font-family: "Microsoft Sans Serif", Arial, sans-serif; 
       margin: 0; 
       padding: 0; 
-      background-color: #f9f9f9; 
+      background: linear-gradient(-45deg, #266CA9, #1e5585, #4a90e2, #266CA9);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
       text-align: center; 
+      color: #333;
     }
     header {
-      background-color: #266CA9;
       color: white;
-      padding: 20px;
+      padding: 30px;
       animation: slideDown 1s ease-out;
     }
     header h1 {
       margin: 0;
-      font-size: 28px;
+      font-size: 32px;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.3);
     }
     .container {
       margin: 30px auto;
@@ -27,27 +31,35 @@
       max-width: 800px;
       background: white;
       padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
+      border-radius: 12px;
+      box-shadow: 0px 6px 20px rgba(0,0,0,0.3);
       animation: fadeIn 1.5s ease-in;
     }
     input, button {
       margin: 10px;
-      padding: 10px;
+      padding: 12px;
       width: 80%;
       font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
       transition: all 0.3s ease;
+    }
+    input:focus {
+      border-color: #266CA9;
+      box-shadow: 0 0 8px rgba(38,108,169,0.6);
+      outline: none;
     }
     button {
       background-color: #266CA9;
       color: white;
       border: none;
-      border-radius: 4px;
       cursor: pointer;
+      font-weight: bold;
     }
     button:hover {
       background-color: #1e5585;
       transform: scale(1.05);
+      box-shadow: 0 0 12px rgba(38,108,169,0.6);
     }
     .cover {
       border: 2px solid black; 
@@ -59,7 +71,8 @@
       box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
       display: none;
       opacity: 0;
-      transition: opacity 1s ease-in;
+      transform: translateY(50px);
+      transition: opacity 1s ease-in, transform 1s ease-in;
     }
     h2 { font-size: 26px; margin: 14px; }
     h3 { font-size: 22px; margin: 12px; }
@@ -71,26 +84,29 @@
     footer {
       margin-top: 40px;
       padding: 20px;
-      background-color: #f0f0f0;
+      background-color: rgba(255,255,255,0.9);
       font-size: 16px;
       animation: fadeIn 2s ease-in;
+      border-top: 2px solid #266CA9;
     }
     footer img {
       max-width: 100px;
       border-radius: 50%;
       margin-top: 10px;
-      transition: transform 0.3s ease;
+      transition: transform 0.5s ease;
     }
     footer img:hover {
-      transform: scale(1.1);
+      transform: rotate(5deg) scale(1.1);
     }
     footer a {
       color: #266CA9;
       text-decoration: none;
       font-weight: bold;
+      transition: color 0.3s ease, text-shadow 0.3s ease;
     }
     footer a:hover {
-      text-decoration: underline;
+      color: #1e5585;
+      text-shadow: 0 0 8px rgba(38,108,169,0.6);
     }
 
     /* Animations */
@@ -101,6 +117,11 @@
     @keyframes slideDown {
       from { transform: translateY(-50px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes gradientBG {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
     }
   </style>
 </head>
@@ -163,11 +184,10 @@
     <p>Love from 
       <a href="https://www.linkedin.com/in/hamimahammed" target="_blank">Hamim Ahammed</a>
     </p>
-    <!-- Replace with your actual photo file -->
     <img src="hamim.jpg" alt="Hamim Ahammed">
   </footer>
 
-  <!-- JS Libraries -->
+     <!-- JS Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
@@ -177,12 +197,15 @@
       document.getElementById("studentOut").innerText = document.getElementById("student").value; // implicit
       document.getElementById("idOut").innerText = document.getElementById("id").value; // implicit
 
-      // Show cover with fade-in
+      // Show cover with fade-in + slide-up
       const cover = document.getElementById("cover");
       cover.style.display = "block";
-      setTimeout(() => { cover.style.opacity = 1; }, 50);
+      setTimeout(() => { 
+        cover.style.opacity = 1; 
+        cover.style.transform = "translateY(0)";
+      }, 50);
 
-      // Show buttons with animation
+      // Show buttons
       document.getElementById("downloadBtn").style.display = "inline-block";
       document.getElementById("downloadImgBtn").style.display = "inline-block";
     }
@@ -210,6 +233,9 @@
         link.download = "Assignment_Cover.png";
         link.href = canvas.toDataURL("image/png");
         link.click();
+      }).catch(err => {
+        console.error("Image generation failed:", err);
+        alert("Something went wrong while generating the image.");
       });
     }
   </script>
