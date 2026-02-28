@@ -1,284 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KU Assignment Pro | Generator</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #266CA9;
-            --glass: rgba(255, 255, 255, 0.9);
-            --shadow: 0 20px 40px rgba(0,0,0,0.2);
-        }
+  <meta charset="UTF-8">
+  <title>Khulna University Assignment Cover Generator</title>
+  <style>
+   body {
+  font-family: "Times New Roman", serif;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(-45deg, #266CA9, #1e5585, #4a90e2, #266CA9);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+  text-align: center;
+  color: #333;
+}
+    header {
+      color: white;
+      padding: 30px;
+      animation: slideDown 1s ease-out;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 32px;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+    }
+    .container {
+      margin: 30px auto;
+      width: 80%;
+      max-width: 800px;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0px 6px 20px rgba(0,0,0,0.3);
+      animation: fadeIn 1.5s ease-in;
+    }
 
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(-45deg, #1e3c72, #2a5298, #266CA9, #4a90e2);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            min-height: 100vh;
-            color: #2d3436;
-            overflow-x: hidden;
-        }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* --- Header --- */
-        header {
-            padding: 2rem;
-            color: white;
-            text-align: center;
-            animation: fadeInDown 0.8s ease;
-        }
-
-        header h1 {
-            margin: 0;
-            font-weight: 800;
-            letter-spacing: -1px;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-
-        /* --- Main Layout --- */
-        .app-container {
-            display: grid;
-            grid-template-columns: 1fr 1.2fr; /* PC View */
-            gap: 2rem;
-            max-width: 1300px;
-            margin: 0 auto 4rem auto;
-            padding: 0 20px;
-            align-items: start;
-        }
-
-        /* --- Input Side (Left) --- */
-        .control-panel {
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            padding: 2.5rem;
-            border-radius: 24px;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(255,255,255,0.3);
-            animation: fadeInLeft 0.8s ease;
-        }
-
-        .input-field {
-            margin-bottom: 1.5rem;
-            text-align: left;
-        }
-
-        label {
-            display: block;
-            font-weight: 600;
-            font-size: 0.85rem;
-            margin-bottom: 8px;
-            color: var(--primary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            background: white;
-            box-sizing: border-box;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(38, 108, 169, 0.15);
-            transform: translateY(-2px);
-        }
-
-        /* --- Preview Side (Right) --- */
-        .preview-pane {
-            position: sticky;
-            top: 20px;
-            animation: fadeInRight 0.8s ease;
-        }
-
-        /* The Paper (Strict Format Kept) */
-        .paper {
-            background: white;
-            width: 100%;
-            aspect-ratio: 1 / 1.414; /* A4 Ratio */
-            box-shadow: var(--shadow);
-            padding: 50px;
-            box-sizing: border-box;
-            font-family: "Times New Roman", serif; /* Kept Original */
-            color: #000;
-            text-align: center;
-            border-radius: 4px;
-            transform-origin: top center;
-            transition: transform 0.3s ease;
-        }
-
-        .print-btn {
-            background: #ffd700;
-            color: #000;
-            border: none;
-            padding: 1rem 2.5rem;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 1.1rem;
-            cursor: pointer;
-            margin-top: 2rem;
-            transition: all 0.3s;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .print-btn:hover {
-            transform: scale(1.05) translateY(-3px);
-            background: #fff;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-        }
-
-        /* --- Animations --- */
-        @keyframes fadeInLeft { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes fadeInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* --- Mobile Responsiveness --- */
-        @media (max-width: 900px) {
-            .app-container {
-                grid-template-columns: 1fr;
-            }
-            header h1 { font-size: 1.8rem; }
-            .preview-pane { position: relative; }
-            .paper { padding: 30px; font-size: 0.9rem; }
-        }
-
-        /* --- Print Mode Settings --- */
-        @media print {
-            body { background: none !important; }
-            .control-panel, header, .print-btn { display: none !important; }
-            .app-container { margin: 0; padding: 0; display: block; }
-            .preview-pane { position: static; }
-            .paper { 
-                box-shadow: none !important; 
-                padding: 0; 
-                margin: 0;
-                width: 100%;
-            }
-        }
-    </style>
-</head>
-<body>
-
-<header>
-    <h1>Assignment Cover Pro</h1>
-    <p>Khulna University Standard</p>
-</header>
-
-<div class="app-container">
-    <div class="control-panel">
-        <h2 style="margin-top:0; color:var(--primary)">Live Editor</h2>
-        
-        <div class="input-field">
-            <label>Course Title</label>
-            <input type="text" id="in-title" placeholder="e.g. Data Structures and Algorithms" oninput="sync()">
-        </div>
-
-        <div class="input-field">
-            <label>Course Code</label>
-            <input type="text" id="in-code" placeholder="e.g. CSE-2101" oninput="sync()">
-        </div>
-
-        <div class="input-field">
-            <label>Assignment Topic</label>
-            <input type="text" id="in-topic" placeholder="e.g. Applications of Binary Search Trees" oninput="sync()">
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <div class="input-field">
-                <label>Student Name</label>
-                <input type="text" id="in-name" placeholder="Full Name" oninput="sync()">
-            </div>
-            <div class="input-field">
-                <label>Student ID</label>
-                <input type="text" id="in-id" placeholder="e.g. 230200" oninput="sync()">
-            </div>
-        </div>
-
-        <div class="input-field">
-            <label>Submission Date</label>
-            <input type="date" id="in-date" oninput="sync()">
-        </div>
-        
-        <button class="print-btn" onclick="window.print()">
-            <span>Generate & Download</span>
-        </button>
-    </div>
-
-    <div class="preview-pane">
-        <div class="paper" id="capture">
-            <div style="border: 2px solid #000; height: 100%; padding: 40px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;">
-                
-                <div>
-                    <h2 style="margin: 0; font-size: 24px;">KHULNA UNIVERSITY</h2>
-                    <h4 style="margin: 5px 0; font-weight: normal;">Khulna-9208, Bangladesh</h4>
-                    <div style="width: 80px; height: 100px; border: 1px dashed #ccc; margin: 20px auto; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #999;">
-                        UNIVERSITY LOGO
-                    </div>
-                    <div style="border-top: 1.5px solid #000; border-bottom: 1.5px solid #000; margin: 20px 0; padding: 10px 0;">
-                        <h3 style="margin: 0; letter-spacing: 2px;">ASSIGNMENT</h3>
-                    </div>
-                </div>
-
-                <div style="text-align: left; line-height: 1.8;">
-                    <p><b>Course Title:</b> <span id="out-title" style="border-bottom: 1px dotted #666;">...</span></p>
-                    <p><b>Course Code:</b> <span id="out-code" style="border-bottom: 1px dotted #666;">...</span></p>
-                    <p><b>Assignment Topic:</b> <span id="out-topic" style="border-bottom: 1px dotted #666;">...</span></p>
-                </div>
-
-                <div style="display: flex; justify-content: space-between; text-align: left; margin-top: 40px;">
-                    <div>
-                        <p style="text-decoration: underline; font-weight: bold; margin-bottom: 10px;">Submitted By:</p>
-                        <p>Name: <span id="out-name">...</span></p>
-                        <p>Student ID: <span id="out-id">...</span></p>
-                        <p>Discipline: CSE</p>
-                    </div>
-                </div>
-
-                <div style="margin-top: 30px;">
-                    <p><b>Date of Submission:</b> <span id="out-date">...</span></p>
-                </div>
-
-            </div>
-            </div>
-    </div>
-</div>
-
-<script>
-    function sync() {
-        document.getElementById('out-title').innerText = document.getElementById('in-title').value || '...';
-        document.getElementById('out-code').innerText = document.getElementById('in-code').value || '...';
-        document.getElementById('out-topic').innerText = document.getElementById('in-topic').value || '...';
-        document.getElementById('out-name').innerText = document.getElementById('in-name').value || '...';
-        document.getElementById('out-id').innerText = document.getElementById('in-id').value || '...';
-        
-        const dateVal = document.getElementById('in-date').value;
-        if(dateVal) {
-            const dateObj = new Date(dateVal);
-            document.getElementById('out-date').innerText = dateObj.toLocaleDateString('en-GB', {
-                day: 'numeric', month: 'long', year: 'numeric'
-            });
-        }
-    }
-</script>
-
-</body>
-</html>
+Make it more interactive dynamic and eye catchy like a professional 
