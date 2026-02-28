@@ -1,39 +1,307 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Khulna University Assignment Cover Generator</title>
-  <style>
-   body {
-  font-family: "Times New Roman", serif;
-  margin: 0;
-  padding: 0;
-  background: linear-gradient(-45deg, #266CA9, #1e5585, #4a90e2, #266CA9);
-  background-size: 400% 400%;
-  animation: gradientBG 15s ease infinite;
-  text-align: center;
-  color: #333;
-}
-    header {
-      color: white;
-      padding: 30px;
-      animation: slideDown 1s ease-out;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 32px;
-      text-shadow: 2px 2px 6px rgba(0,0,0,0.3);
-    }
-    .container {
-      margin: 30px auto;
-      width: 80%;
-      max-width: 800px;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0px 6px 20px rgba(0,0,0,0.3);
-      animation: fadeIn 1.5s ease-in;
-    }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KU Assignment Studio | Hamim Ahammed</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #266CA9;
+      --secondary: #1e5585;
+      --glass: rgba(255, 255, 255, 0.92);
+      --text: #2d3436;
+    }
 
+    /* --- WEBSITE BODY & ANIMATED BACKGROUND --- */
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(-45deg, #1e3c72, #2a5298, #266CA9, #4a90e2);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
-Make it more interactive dynamic and eye catchy like a professional 
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* --- HEADER --- */
+    header {
+      padding: 40px 20px;
+      color: white;
+      text-align: center;
+      animation: slideDown 1s ease-out;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      text-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+
+    /* --- MAIN STUDIO LAYOUT --- */
+    .studio-wrapper {
+      display: flex;
+      flex-direction: row; /* PC View */
+      gap: 40px;
+      max-width: 1300px;
+      margin: 0 auto 50px auto;
+      padding: 0 20px;
+      align-items: flex-start;
+      width: 100%;
+    }
+
+    /* --- INPUT PANEL (Left Side) --- */
+    .control-panel {
+      flex: 1;
+      min-width: 380px;
+      background: var(--glass);
+      backdrop-filter: blur(15px);
+      padding: 40px;
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      animation: fadeIn 1s ease-in;
+    }
+
+    .control-panel h2 {
+      margin-top: 0;
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 1.5rem;
+      margin-bottom: 25px;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .input-group label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+      color: #636e72;
+      text-transform: uppercase;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 18px;
+      font-size: 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      background: white;
+      box-sizing: border-box;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(38,108,169,0.15);
+      outline: none;
+    }
+
+    .btn-group {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 25px;
+    }
+
+    button {
+      padding: 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .btn-generate { background: var(--primary); color: white; width: 100%; }
+    .btn-pdf { background: #2d3436; color: white; display: none; }
+    .btn-img { background: #f1f2f6; color: var(--text); display: none; }
+
+    button:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+
+    /* --- THE PREVIEW AREA (Right Side) --- */
+    .preview-area {
+      flex: 1.5;
+      display: flex;
+      justify-content: center;
+      animation: fadeIn 1.5s ease-in;
+    }
+
+    /* YOUR ORIGINAL ASSIGNMENT LAYOUT (INTACT) */
+    .cover {
+      font-family: "Times New Roman", serif; /* Ensuring layout font is correct */
+      padding: 60px 40px;
+      width: 100%;
+      max-width: 650px;
+      min-height: 850px;
+      background: white;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+      text-align: center;
+      position: relative;
+      display: none; /* Hidden until generated */
+    }
+
+    /* --- FOOTER --- */
+    footer {
+      background: rgba(255,255,255,0.9);
+      padding: 30px;
+      border-top: 3px solid var(--primary);
+      margin-top: auto;
+    }
+
+    .footer-content { display: flex; align-items: center; justify-content: center; gap: 15px; }
+    footer img { width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--primary); }
+    footer a { color: var(--primary); text-decoration: none; font-weight: 800; }
+
+    /* --- RESPONSIVE ADJUSTMENTS --- */
+    @media (max-width: 950px) {
+      .studio-wrapper { flex-direction: column; align-items: center; }
+      .control-panel { width: 100%; min-width: unset; }
+      .preview-area { width: 100%; }
+      .cover { width: 95%; padding: 40px 20px; }
+    }
+
+    @keyframes slideDown { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* --- PRINT FIX --- */
+    @media print {
+      body { background: white !important; }
+      header, .control-panel, footer { display: none !important; }
+      .studio-wrapper { display: block; margin: 0; padding: 0; }
+      .cover { display: block !important; opacity: 1 !important; box-shadow: none !important; margin: 0; width: 100%; transform: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>KU Assignment Studio</h1>
+  </header>
+
+  <div class="studio-wrapper">
+    <div class="control-panel">
+      <h2>Live Configuration</h2>
+      
+      <div class="input-group">
+        <label>Assignment Topic</label>
+        <input type="text" id="topic" placeholder="e.g. Financial Accounting Ethics">
+      </div>
+
+      <div class="input-group">
+        <label>Student Name</label>
+        <input type="text" id="student" placeholder="Enter your full name">
+      </div>
+
+      <div class="input-group">
+        <label>Student ID</label>
+        <input type="text" id="id" placeholder="e.g. 2501xx">
+      </div>
+
+      <div class="btn-group">
+        <button class="btn-generate" onclick="generateCover()">Generate Live Preview</button>
+        <button id="downloadBtn" class="btn-pdf" onclick="downloadPDF()">Download Official PDF</button>
+        <button id="downloadImgBtn" class="btn-img" onclick="downloadImage()">Save as Image</button>
+      </div>
+    </div>
+
+    <div class="preview-area">
+      <div id="cover" class="cover">
+        <img src="logo.png" alt="University Logo" style="max-width: 120px; margin: 0 auto 20px auto; display: block;">
+        <h2 style="font-size: 26px; margin: 14px; font-weight: bold; color: #266CA9;">Khulna University</h2>
+        <h3 style="font-size: 22px; margin: 12px; color: black; font-weight: normal;">Business Administration Discipline</h3>
+
+        <h3 style="font-size: 22px; margin: 12px; font-weight: bold; color: #266CA9; margin-top:30px;">An Assignment on</h3>
+        <h3 id="topicOut" style="font-size: 22px; margin: 12px; color: black; font-weight: normal; margin-top:10px;"></h3>
+
+        <p style="font-size: 18px; margin: 10px;"><span style="font-weight: bold; color: #266CA9;">Course Name:</span> <span style="color: black; font-weight: normal;">Financial Accounting</span></p>
+        <p style="font-size: 18px; margin: 10px;"><span style="font-weight: bold; color: #266CA9;">Course Code:</span> <span style="color: black; font-weight: normal;">0413 03 BA 1209</span></p>
+
+        <div style="margin-top:30px;">
+          <p style="font-weight: bold; color: #266CA9; font-size: 20px; margin: 10px;">Submitted To</p>
+          <p style="font-size: 20px; margin: 10px;">Tania Afroze</p>
+          <p style="font-size: 20px; margin: 10px;">Professor</p>
+          <p style="color: black; font-weight: normal; font-size: 18px; margin: 10px;">Business Administration Discipline</p>
+          <p style="color: black; font-weight: normal; font-size: 18px; margin: 10px;">Khulna University</p>
+        </div>
+
+        <div style="margin-top:30px;">
+          <p style="font-weight: bold; color: #266CA9; font-size: 20px; margin: 10px;">Submitted By</p>
+          <p id="studentOut" style="color: black; font-weight: normal; font-size: 20px; margin: 10px;"></p>
+          <p style="font-size: 18px; margin: 10px;"><span style="color:black; font-weight:normal;">ID:</span> <span id="idOut" style="color: black; font-weight: normal; font-size: 20px;"></span></p>
+          <p style="color: black; font-weight: normal; font-size: 18px; margin: 10px;">25’ Batch</p>
+          <p style="color: black; font-weight: normal; font-size: 18px; margin: 10px;">Business Administration Discipline</p>
+          <p style="color: black; font-weight: normal; font-size: 18px; margin: 10px;">Khulna University</p>
+        </div>
+
+        <p style="color: black; font-weight: normal; font-size: 18px; margin-top:30px;">Date of Submission: 24th February, 2026</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-content">
+      <img src="hamim.jpg" alt="Hamim Ahammed">
+      <p>Developed with ❤️ by <a href="https://www.linkedin.com/in/hamimahammed" target="_blank">Hamim Ahammed</a></p>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    function generateCover() {
+      document.getElementById("topicOut").innerText = document.getElementById("topic").value;
+      document.getElementById("studentOut").innerText = document.getElementById("student").value;
+      document.getElementById("idOut").innerText = document.getElementById("id").value;
+
+      const cover = document.getElementById("cover");
+      cover.style.display = "block";
+      
+      document.getElementById("downloadBtn").style.display = "inline-block";
+      document.getElementById("downloadImgBtn").style.display = "inline-block";
+      
+      cover.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const cover = document.getElementById("cover");
+      html2canvas(cover, { scale: 2 }).then(canvas => {
+        const imgData = canvas.toDataURL("image/png");
+        const doc = new jsPDF({ unit: "pt", format: "a4" });
+        const pdfWidth = doc.internal.pageSize.getWidth();
+        const pdfHeight = doc.internal.pageSize.getHeight();
+        const ratio = Math.min(pdfWidth / canvas.width, pdfHeight / canvas.height);
+        doc.addImage(imgData, "PNG", (pdfWidth - canvas.width * ratio) / 2, 20, canvas.width * ratio, canvas.height * ratio);
+        doc.save("Assignment_Cover.pdf");
+      });
+    }
+
+    function downloadImage() {
+      html2canvas(document.getElementById("cover"), { scale: 2 }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "Assignment_Cover.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+    }
+  </script>
+</body>
+</html>
