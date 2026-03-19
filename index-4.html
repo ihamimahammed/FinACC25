@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KU Assignment Cover Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+  /* ═══════════════════════════════════════════════════
+     RESET & TOKENS
+  ═══════════════════════════════════════════════════ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --oxford:   #002147;
+    --oxford2:  #0a3060;
+    --gold:     #b8860b;
+    --gold-lt:  #d4a017;
+    --cream:    #f4f1eb;
+    --paper:    #fdfcf9;
+    --border:   #dbd5cb;
+    --text:     #1c1c1c;
+    --muted:    #6e6e6e;
+    --err:      #c0392b;
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: 'Lato', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+  }
+
+  /* ═══════════════════════════════════════════════════
+     APP LAYOUT
+  ═══════════════════════════════════════════════════ */
+  .app {
+    display: grid;
+    grid-template-columns: 390px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ═══════════════════════════════════════════════════
+     SIDEBAR
+  ═══════════════════════════════════════════════════ */
+  .sidebar {
+    background: var(--oxford);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 46px 38px 34px;
+    animation: sideIn .6s cubic-bezier(.22,1,.36,1) both;
+  }
+
+  /* scrollbar */
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 4px; }
+
+  .s-kicker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 34px;
+  }
+  .s-kicker-line { width: 28px; height: 2px; background: var(--gold-lt); border-radius: 2px; flex-shrink: 0; }
+  .s-kicker-text { font-size: 9px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: rgba(255,255,255,.38); }
+
+  .s-title {
+    font-family: 'EB Garamond', serif;
+    font-size: 34px;
+    font-weight: 500;
+    line-height: 1.1;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .s-title em { font-style: italic; font-weight: 400; color: rgba(255,255,255,.65); }
+
+  .s-sub {
+    font-size: 12.5px;
+    font-weight: 300;
+    color: rgba(255,255,255,.4);
+    line-height: 1.7;
+    margin-bottom: 38px;
+  }
+
+  /* fields */
+  .field { margin-bottom: 18px; }
+
+  .field label {
+    display: block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.42);
+    margin-bottom: 6px;
+  }
+
+  .field input {
+    width: 100%;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 5px;
+    color: #fff;
+    font-family: 'EB Garamond', serif;
+    font-size: 17px;
+    padding: 11px 14px;
+    outline: none;
+    transition: border-color .2s, background .2s, box-shadow .2s;
+  }
+  .field input::placeholder { color: rgba(255,255,255,.17); font-style: italic; }
+  .field input:focus {
+    border-color: var(--gold-lt);
+    background: rgba(255,255,255,.09);
+    box-shadow: 0 0 0 3px rgba(212,160,23,.11);
+  }
+  .field input.err {
+    border-color: #e07070 !important;
+    box-shadow: 0 0 0 3px rgba(192,57,43,.13) !important;
+  }
+  .f-err {
+    display: none;
+    font-size: 10.5px;
+    color: #ff8f80;
+    margin-top: 4px;
+  }
+  .field input.err ~ .f-err { display: block; }
+
+  /* generate button */
+  .btn-gen {
+    width: 100%;
+    margin-top: 6px;
+    padding: 14px 18px;
+    background: var(--gold-lt);
+    color: var(--oxford);
+    border: none;
+    border-radius: 5px;
+    font-family: 'Lato', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background .2s, transform .15s, box-shadow .2s;
+    box-shadow: 0 4px 18px rgba(212,160,23,.2);
+  }
+  .btn-gen:hover { background: #e6b81e; transform: translateY(-1px); box-shadow: 0 7px 24px rgba(212,160,23,.3); }
+  .btn-gen:active { transform: translateY(0); }
+  .btn-gen.loading { opacity: .65; pointer-events: none; }
+
+  .spin {
+    width: 13px; height: 13px;
+    border: 2px solid rgba(0,33,71,.25);
+    border-top-color: var(--oxford);
+    border-radius: 50%;
+    animation: spin .65s linear infinite;
+    display: none;
+    flex-shrink: 0;
+  }
+  .btn-gen.loading .spin { display: block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* download row */
+  .dl-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 9px;
+  }
+  .btn-dl {
+    padding: 10px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 5px;
+    color: rgba(255,255,255,.58);
+    font-family: 'Lato', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: background .2s, color .2s, border-color .2s, transform .15s;
+  }
+  .btn-dl:hover { background: rgba(255,255,255,.07); color: #fff; border-color: rgba(255,255,255,.28); transform: translateY(-1px); }
+  .btn-dl:active { transform: translateY(0); }
+  .btn-dl.loading { opacity: .45; pointer-events: none; }
+
+  .s-divider { height: 1px; background: rgba(255,255,255,.07); margin: 26px 0 18px; }
+
+  .s-note {
+    font-size: 11px;
+    color: rgba(255,255,255,.25);
+    line-height: 1.65;
+    border-left: 2px solid rgba(212,160,23,.35);
+    padding: 9px 12px;
+    background: rgba(255,255,255,.03);
+    border-radius: 0 4px 4px 0;
+  }
+
+  .s-footer {
+    margin-top: auto;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,.06);
+    font-size: 11px;
+    color: rgba(255,255,255,.26);
+    text-align: center;
+  }
+  .s-footer a { color: rgba(255,255,255,.46); text-decoration: none; transition: color .2s; }
+  .s-footer a:hover { color: var(--gold-lt); }
+  .heart { color: #e05c3a; display: inline-block; animation: hb 1.8s ease infinite; }
+  @keyframes hb { 0%,100%{transform:scale(1);} 50%{transform:scale(1.3);} }
+
+  /* ═══════════════════════════════════════════════════
+     PREVIEW PANEL
+  ═══════════════════════════════════════════════════ */
+  .preview {
+    background: var(--cream);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 54px 44px 80px;
+    animation: fadeUp .65s .1s cubic-bezier(.22,1,.36,1) both;
+  }
+
+  .pv-bar {
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 26px;
+  }
+  .pv-bar::before, .pv-bar::after { content:''; flex:1; height:1px; background: var(--border); }
+  .pv-bar span {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .empty {
+    width: 100%;
+    max-width: 640px;
+    border: 1.5px dashed var(--border);
+    border-radius: 8px;
+    padding: 68px 40px;
+    text-align: center;
+    background: var(--paper);
+  }
+  .empty-icon { font-size: 38px; margin-bottom: 12px; opacity: .22; }
+  .empty h3 { font-family:'EB Garamond',serif; font-size:20px; font-weight:500; color:var(--muted); margin-bottom:5px; }
+  .empty p  { font-size:12.5px; color:#bbb; }
+
+  /* ═══════════════════════════════════════════════════
+     THE COVER — fully isolated namespace
+     Single continuous vertical layout
+     Teacher-friendly colour hierarchy:
+       • Section headings  → Oxford navy  (#002147)
+       • Labels/keys       → Dark gold    (#8a6200)
+       • Primary content   → Deep charcoal(#1c1c1c)
+       • Supporting info   → Warm grey    (#5a5a5a)
+       • Decorative rules  → Oxford navy / gold
+  ═══════════════════════════════════════════════════ */
+  #cover {
+    all: initial;
+    display: block;
+    width: 100%;
+    max-width: 640px;
+    background: #ffffff;
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #1c1c1c;
+    text-align: center;
+    position: relative;
+    box-shadow:
+      0 1px 3px rgba(0,0,0,.06),
+      0 6px 20px rgba(0,0,0,.09),
+      0 28px 56px rgba(0,0,0,.12);
+  }
+
+  /* ── Header band ── */
+  #cover .cv-topband {
+    display: block;
+    width: 100%;
+    height: 11px;
+    background: #002147;
+  }
+
+  #cover .cv-goldstrip {
+    display: block;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #7a5000, #d4a017 40%, #d4a017 60%, #7a5000);
+  }
+
+  /* ── Body ── */
+  #cover .cv-body {
+    display: block;
+    padding: 44px 72px 38px;
+  }
+
+  /* ── Logo ── */
+  #cover .cv-logo {
+    display: block;
+    max-width: 88px;
+    height: auto;
+    margin: 0 auto 14px;
+  }
+
+  /* ── University name ── */
+  #cover .cv-uni {
+    display: block;
+    font-size: 24px;
+    font-weight: 700;
+    color: #002147;
+    letter-spacing: .01em;
+    margin-bottom: 3px;
+  }
+
+  /* ── Discipline ── */
+  #cover .cv-dept {
+    display: block;
+    font-size: 14px;
+    font-weight: 400;
+    color: #444;
+    letter-spacing: .01em;
+  }
+
+  /* ── Full-width navy rule ── */
+  #cover .cv-rule {
+    display: block;
+    width: 100%;
+    height: 1.5px;
+    background: #002147;
+    margin: 20px 0;
+  }
+
+  /* ── Thin separator ── */
+  #cover .cv-sep {
+    display: block;
+    width: 72px;
+    height: 1px;
+    background: #c8a84b;
+    margin: 18px auto;
+    border-radius: 1px;
+  }
+
+  /* ── "An Assignment on" ── */
+  #cover .cv-on {
+    display: block;
+    font-size: 11.5px;
+    font-style: italic;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 9px;
+  }
+
+  /* ── Topic — most prominent text on page ── */
+  #cover .cv-topic {
+    display: block;
+    font-size: 22px;
+    font-weight: 600;
+    color: #002147;
+    line-height: 1.28;
+    min-height: 1.28em;
+    margin-bottom: 2px;
+    letter-spacing: .005em;
+  }
+
+  /* ── Course info block ── */
+  #cover .cv-cblock {
+    display: block;
+    margin: 20px 0;
+    padding: 14px 20px;
+    background: #f7f4ef;
+    border-top: 1.5px solid #002147;
+    border-bottom: 1.5px solid #002147;
+    text-align: center;
+  }
+
+  #cover .cv-cline {
+    display: block;
+    font-size: 14.5px;
+    color: #1c1c1c;
+    margin: 5px 0;
+    line-height: 1.5;
+  }
+
+  /* labels bold navy, values normal charcoal */
+  #cover .cv-cline .lbl {
+    font-weight: 600;
+    color: #002147;
+  }
+
+  #cover .cv-cline .val {
+    font-weight: 400;
+    color: #1c1c1c;
+  }
+
+  /* ── Section heading (Submitted To / By) ── */
+  #cover .cv-sechead {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: #002147;
+    margin-bottom: 12px;
+    padding-bottom: 7px;
+    border-bottom: 1.5px solid #c8a84b;
+    text-align: center;
+  }
+
+  /* ── Section block wrapper ── */
+  #cover .cv-section {
+    display: block;
+    text-align: center;
+    margin: 0 0 4px;
+  }
+
+  /* ── Person name (teacher / student) — not bold, elegant ── */
+  #cover .cv-name {
+    display: block;
+    font-size: 19px;
+    font-weight: 400;
+    color: #1c1c1c;
+    margin-bottom: 3px;
+    line-height: 1.3;
+  }
+
+  /* ── Designation / role ── */
+  #cover .cv-role {
+    display: block;
+    font-size: 13.5px;
+    font-style: italic;
+    color: #555;
+    margin: 2px 0;
+  }
+
+  /* ── ID row ── */
+  #cover .cv-idrow {
+    display: block;
+    font-size: 13.5px;
+    color: #444;
+    margin: 3px 0;
+  }
+
+  #cover .cv-idrow .lbl {
+    font-weight: 600;
+    color: #002147;
+    font-style: normal;
+  }
+
+  /* ── Institutional info ── */
+  #cover .cv-inst {
+    display: block;
+    font-size: 13px;
+    color: #666;
+    margin: 2px 0;
+    line-height: 1.5;
+  }
+
+  /* ── Batch ── */
+  #cover .cv-batch {
+    display: block;
+    font-size: 12.5px;
+    color: #888;
+    margin: 2px 0;
+  }
+
+  /* ── Date — clean, no ribbon, no colour ── */
+  #cover .cv-date {
+    display: block;
+    font-size: 13px;
+    font-style: italic;
+    color: #666;
+    text-align: center;
+    margin: 4px 0 0;
+  }
+
+  #cover .cv-date .lbl {
+    font-weight: 600;
+    font-style: normal;
+    color: #002147;
+  }
+
+  /* ── Footer bands ── */
+  #cover .cv-botgold {
+    display: block;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #7a5000, #d4a017 40%, #d4a017 60%, #7a5000);
+  }
+
+  #cover .cv-botband {
+    display: block;
+    width: 100%;
+    height: 11px;
+    background: #002147;
+  }
+
+  /* ═══════════════════════════════════════════════════
+     TOAST
+  ═══════════════════════════════════════════════════ */
+  #toast {
+    position: fixed;
+    bottom: 26px;
+    left: 50%;
+    transform: translateX(-50%) translateY(54px);
+    background: var(--oxford);
+    color: rgba(255,255,255,.92);
+    border: 1px solid rgba(255,255,255,.1);
+    padding: 10px 24px;
+    border-radius: 100px;
+    font-family: 'Lato', sans-serif;
+    font-size: 12.5px;
+    letter-spacing: .03em;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+    white-space: nowrap;
+    transition: all .36s cubic-bezier(.22,1,.36,1);
+    box-shadow: 0 8px 24px rgba(0,0,0,.22);
+  }
+  #toast.show  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #toast.is-err { background: var(--err); }
+
+  /* ═══════════════════════════════════════════════════
+     ANIMATIONS
+  ═══════════════════════════════════════════════════ */
+  @keyframes sideIn { from{opacity:0;transform:translateX(-16px);} to{opacity:1;transform:translateX(0);} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(18px);}  to{opacity:1;transform:translateY(0);} }
+
+  .hidden { display: none !important; }
+
+  /* ═══════════════════════════════════════════════════
+     RESPONSIVE
+  ═══════════════════════════════════════════════════ */
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; }
+    .preview { padding: 40px 20px 64px; }
+  }
+
+  @media (max-width: 480px) {
+    .sidebar { padding: 36px 24px 30px; }
+    #cover .cv-body { padding: 36px 30px 32px; }
+  }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ════════ SIDEBAR ════════ -->
+  <aside class="sidebar">
+
+    <div class="s-kicker">
+      <div class="s-kicker-line"></div>
+      <span class="s-kicker-text">Khulna University · Business Administration</span>
+    </div>
+
+    <h1 class="s-title">Assignment<br><em>Cover Generator</em></h1>
+    <p class="s-sub">
+      Generate a professional A4 assignment cover.<br>
+      Fill in the details and download instantly.
+    </p>
+
+    <div class="field" id="f-topic">
+      <label for="topic">Assignment Topic</label>
+      <input type="text" id="topic" placeholder="e.g. Time Value of Money"
+             autocomplete="off" oninput="clearErr('topic')">
+      <span class="f-err">Topic is required.</span>
+    </div>
+
+    <div class="field" id="f-student">
+      <label for="student">Student Name</label>
+      <input type="text" id="student" placeholder="e.g. Hamim Ahammed"
+             autocomplete="off" oninput="clearErr('student')">
+      <span class="f-err">Student name is required.</span>
+    </div>
+
+    <div class="field" id="f-sid">
+      <label for="sid">Student ID</label>
+      <input type="text" id="sid" placeholder="e.g. 2410406"
+             autocomplete="off" oninput="clearErr('sid')">
+      <span class="f-err">Student ID is required.</span>
+    </div>
+
+    <button class="btn-gen" id="btnGen" onclick="generateCover()">
+      <div class="spin"></div>
+      <span>Generate Cover Page</span>
+    </button>
+
+    <div class="dl-row hidden" id="dlRow">
+      <button class="btn-dl" id="btnPdf" onclick="downloadPDF()">↓ &thinsp;PDF</button>
+      <button class="btn-dl" id="btnImg" onclick="downloadImage()">↓ &thinsp;Image</button>
+    </div>
+
+    <div class="s-divider"></div>
+
+    <p class="s-note">
+      Both PDF and image export at exact A4 portrait size (210 × 297 mm) on any device.
+    </p>
+
+    <div class="s-footer">
+      Made with <span class="heart">♥</span> by
+      <a href="https://www.linkedin.com/in/hamimahammed" target="_blank">Hamim Ahammed</a>
+    </div>
+
+  </aside>
+
+  <!-- ════════ PREVIEW ════════ -->
+  <main class="preview">
+
+    <div class="pv-bar"><span>Live Preview</span></div>
+
+    <!-- empty state -->
+    <div class="empty" id="emptyState">
+      <div class="empty-icon">📄</div>
+      <h3>Your cover will appear here</h3>
+      <p>Fill in the fields on the left and click Generate.</p>
+    </div>
+
+    <!-- ══════════════ THE COVER ══════════════
+         Single continuous vertical flow.
+         No two-column layout anywhere.
+    ══════════════════════════════════════════ -->
+    <div id="cover" class="hidden">
+
+      <span class="cv-topband"></span>
+      <span class="cv-goldstrip"></span>
+
+      <div class="cv-body">
+
+        <!-- ① Logo (untouched) -->
+        <img src="logo.png" alt="Khulna University" class="cv-logo"
+             onerror="this.style.display='none'">
+
+        <!-- ② University identity -->
+        <span class="cv-uni">Khulna University</span>
+        <span class="cv-dept">Business Administration Discipline</span>
+
+        <!-- ③ Primary rule -->
+        <span class="cv-rule"></span>
+
+        <!-- ④ Assignment topic -->
+        <span class="cv-on">An Assignment on</span>
+        <span id="topicOut" class="cv-topic"></span>
+
+        <!-- ⑤ Course info block -->
+        <div class="cv-cblock">
+          <span class="cv-cline">
+            <span class="lbl">Course Name:</span>
+            &ensp;<span class="val">Financial Accounting</span>
+          </span>
+          <span class="cv-cline">
+            <span class="lbl">Course Code:</span>
+            &ensp;<span class="val">0413 03 BA 1209</span>
+          </span>
+        </div>
+
+        <!-- ⑥ Submitted To -->
+        <span class="cv-sep"></span>
+        <span class="cv-sechead">Submitted To</span>
+        <div class="cv-section">
+          <span class="cv-name">Tania Afroze</span>
+          <span class="cv-role">Professor</span>
+          <span class="cv-inst">Business Administration Discipline</span>
+          <span class="cv-inst">Khulna University</span>
+        </div>
+
+        <!-- ⑦ Submitted By -->
+        <span class="cv-sep"></span>
+        <span class="cv-sechead">Submitted By</span>
+        <div class="cv-section">
+          <span id="studentOut" class="cv-name"></span>
+          <span class="cv-idrow">
+            <span class="lbl">ID:</span>&ensp;<span id="idOut"></span>
+          </span>
+          <span class="cv-batch">25' Batch</span>
+          <span class="cv-inst">Business Administration Discipline</span>
+          <span class="cv-inst">Khulna University</span>
+        </div>
+
+        <!-- ⑧ Date — plain text, no ribbon -->
+        <span class="cv-sep"></span>
+        <span class="cv-date">
+          <span class="lbl">Date of Submission:</span>&ensp;24th February, 2026
+        </span>
+
+      </div><!-- .cv-body -->
+
+      <span class="cv-botgold"></span>
+      <span class="cv-botband"></span>
+
+    </div><!-- #cover -->
+
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ──────────────────────────────────────────
+   TOAST
+────────────────────────────────────────── */
+let _tt;
+function toast(msg, type, ms) {
+  ms = ms || 2800;
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.remove('is-err');
+  if (type === 'err') el.classList.add('is-err');
+  el.classList.add('show');
+  clearTimeout(_tt);
+  _tt = setTimeout(() => el.classList.remove('show'), ms);
+}
+
+/* ──────────────────────────────────────────
+   VALIDATION
+────────────────────────────────────────── */
+function clearErr(id) {
+  document.getElementById(id).classList.remove('err');
+}
+
+function validate() {
+  let ok = true;
+  ['topic','student','sid'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el.value.trim()) { el.classList.add('err'); ok = false; }
+    else el.classList.remove('err');
+  });
+  return ok;
+}
+
+/* ──────────────────────────────────────────
+   GENERATE
+────────────────────────────────────────── */
+function generateCover() {
+  if (!validate()) { toast('Please fill in all fields.','err'); return; }
+
+  const topic   = document.getElementById('topic').value.trim();
+  const student = document.getElementById('student').value.trim();
+  const id      = document.getElementById('sid').value.trim();
+
+  document.getElementById('topicOut').textContent   = topic;
+  document.getElementById('studentOut').textContent = student;
+  document.getElementById('idOut').textContent      = id;
+
+  document.getElementById('emptyState').classList.add('hidden');
+  const cover = document.getElementById('cover');
+  cover.classList.remove('hidden');
+  document.getElementById('dlRow').classList.remove('hidden');
+
+  setTimeout(() => cover.scrollIntoView({ behavior:'smooth', block:'nearest' }), 80);
+  toast('Cover generated successfully.');
+}
+
+/* ──────────────────────────────────────────
+   A4 CAPTURE ENGINE
+   A4 portrait @ 96 dpi CSS = 794 × 1123 px
+   Scale 3× → 2382 × 3369 px  (~300 dpi)
+────────────────────────────────────────── */
+const A4W = 794, A4H = 1123, SCL = 3;
+
+function captureA4() {
+  return new Promise((res, rej) => {
+    const el = document.getElementById('cover');
+    const sw = el.style.width, smw = el.style.maxWidth, smh = el.style.minHeight;
+
+    el.style.width     = A4W + 'px';
+    el.style.maxWidth  = 'none';
+    el.style.minHeight = A4H + 'px';
+
+    setTimeout(() => {
+      html2canvas(el, {
+        scale: SCL, width: A4W, height: A4H,
+        windowWidth: A4W, windowHeight: A4H,
+        backgroundColor: '#ffffff',
+        useCORS: true, logging: false, allowTaint: false
+      }).then(c => {
+        el.style.width = sw; el.style.maxWidth = smw; el.style.minHeight = smh;
+        res(c);
+      }).catch(e => {
+        el.style.width = sw; el.style.maxWidth = smw; el.style.minHeight = smh;
+        rej(e);
+      });
+    }, 80);
+  });
+}
+
+/* ──────────────────────────────────────────
+   DOWNLOAD PDF — strict A4 portrait
+────────────────────────────────────────── */
+function downloadPDF() {
+  const btn = document.getElementById('btnPdf');
+  btn.classList.add('loading');
+  toast('Generating PDF…','',9000);
+
+  captureA4().then(canvas => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+    doc.addImage(canvas.toDataURL('image/jpeg', 0.98), 'JPEG', 0, 0, 210, 297);
+    doc.save('Assignment_Cover_KU.pdf');
+    btn.classList.remove('loading');
+    toast('PDF downloaded — A4 portrait.');
+  }).catch(() => {
+    btn.classList.remove('loading');
+    toast('PDF failed. Please try again.','err');
+  });
+}
+
+/* ──────────────────────────────────────────
+   DOWNLOAD IMAGE — A4 @200 dpi (1654×2339)
+────────────────────────────────────────── */
+function downloadImage() {
+  const btn = document.getElementById('btnImg');
+  btn.classList.add('loading');
+  toast('Generating image…','',9000);
+
+  captureA4().then(canvas => {
+    const out = document.createElement('canvas');
+    out.width = 1654; out.height = 2339;
+    const ctx = out.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(canvas, 0, 0, 1654, 2339);
+    out.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
+      Object.assign(document.createElement('a'),
+        { href: url, download: 'Assignment_Cover_KU.png' }).click();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      btn.classList.remove('loading');
+      toast('Image downloaded — A4 portrait.');
+    }, 'image/png');
+  }).catch(() => {
+    btn.classList.remove('loading');
+    toast('Image failed. Please try again.','err');
+  });
+}
+
+/* Enter key shortcut */
+document.addEventListener('keydown', e => { if (e.key === 'Enter') generateCover(); });
+</script>
+</body>
+</html>
